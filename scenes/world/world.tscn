@@ -1,17 +1,15 @@
 [gd_scene format=3 uid="uid://bx14ogm3vg1fn"]
 
 [ext_resource type="PackedScene" uid="uid://cxuted04rjpe2" path="res://scenes/world/environment/sky_rig.tscn" id="1_sky"]
-[ext_resource type="PackedScene" uid="uid://4vwlof01nd3c" path="res://scenes/world/environment/cloud_field.tscn" id="2_clouds"]
+[ext_resource type="PackedScene" path="res://scenes/world/environment/cloud_field.tscn" id="2_clouds"]
 [ext_resource type="Material" uid="uid://ga7w04awflho" path="res://assets/materials/environment/soft_sky.tres" id="2_v5dby"]
-[ext_resource type="PackedScene" path="res://scenes/debug/environment_preview.tscn" id="3_preview"]
-[ext_resource type="PackedScene" path="res://scenes/debug/environment_debug_panel.tscn" id="4_panel"]
 
 [sub_resource type="Sky" id="Sky_soft"]
 sky_material = ExtResource("2_v5dby")
 process_mode = 1
 radiance_size = 0
 
-[sub_resource type="Environment" id="Environment_v5dby"]
+[sub_resource type="Environment" id="Environment_1fp7r"]
 resource_local_to_scene = true
 background_mode = 2
 sky = SubResource("Sky_soft")
@@ -19,6 +17,10 @@ ambient_light_source = 2
 ambient_light_color = Color(0.74, 0.85, 0.95, 1)
 ambient_light_energy = 0.76
 reflected_light_source = 1
+ssr_enabled = true
+ssao_enabled = true
+ssil_enabled = true
+glow_enabled = true
 
 [node name="World" type="Node3D" unique_id=661118428]
 
@@ -27,7 +29,7 @@ reflected_light_source = 1
 [node name="SkyRig" parent="Environment" unique_id=918240709 instance=ExtResource("1_sky")]
 
 [node name="WorldEnvironment" parent="Environment/SkyRig" index="0" unique_id=1804086883]
-environment = SubResource("Environment_v5dby")
+environment = SubResource("Environment_1fp7r")
 
 [node name="Orbit" parent="Environment/SkyRig/SunFrame" parent_id_path=PackedInt32Array(918240709, 790280400) index="0" unique_id=1888967610]
 transform = Transform3D(0.7933533, 0.6087614, 0, -0.6087614, 0.7933533, 0, 0, 0, 1, 0, 0, 0)
@@ -37,33 +39,10 @@ transform = Transform3D(0.6946584, 0, -0.7193397, 0, 1, 0, 0.7193397, 0, 0.69465
 light_color = Color(1, 0.95, 0.84, 1)
 light_energy = 1.08
 
+[node name="WorldClock" parent="Environment/SkyRig" index="2" unique_id=1332757164]
+StartRunning = false
+
 [node name="CloudField" parent="Environment" unique_id=343360612 instance=ExtResource("2_clouds")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1200)
 
-[node name="Preview" parent="." unique_id=361392330 instance=ExtResource("3_preview")]
-
-[node name="Overview" parent="Preview" index="0"]
-transform = Transform3D(1, 0, 0, 0, 0.99558526, -0.093861625, 0, 0.093861625, 0.99558526, 0, 355, 1180)
-
-[node name="AboveClouds" parent="Preview" index="1"]
-transform = Transform3D(1, 0, 0, 0, 0.96377087, 0.26673144, 0, -0.26673144, 0.96377087, 70, 1210, 905)
-
-[node name="Follower" parent="Preview/FlightPath" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 448, 950)
-
-[node name="FlightCamera" parent="Preview/FlightPath/Follower" index="0"]
-transform = Transform3D(1, 0, 0, 0, 0.99938756, -0.034992855, 0, 0.034992855, 0.99938756, 0, 0, 0)
-
-[node name="UnderClouds" parent="Preview" index="4"]
-transform = Transform3D(1, 0, 0, 0, 0.523366, -0.852108, 0, 0.852108, 0.523366, 0, 24, 485)
-
-[node name="EnvironmentDebugPanel" parent="." unique_id=128866387 node_paths=PackedStringArray("Clock", "OverviewCamera", "AboveCloudsCamera", "FlightCamera", "UnderCloudsCamera", "FlightAnimation") instance=ExtResource("4_panel")]
-Clock = NodePath("../Environment/SkyRig/WorldClock")
-OverviewCamera = NodePath("../Preview/Overview")
-AboveCloudsCamera = NodePath("../Preview/AboveClouds")
-FlightCamera = NodePath("../Preview/FlightPath/Follower/FlightCamera")
-UnderCloudsCamera = NodePath("../Preview/UnderClouds")
-FlightAnimation = NodePath("../Preview/FlightAnimation")
-
 [editable path="Environment/SkyRig"]
-[editable path="Preview"]

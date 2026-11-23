@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://c65ji21nv62di"]
+
+[ext_resource type="PackedScene" uid="uid://bx14ogm3vg1fn" path="res://scenes/world/world.tscn" id="1_0bbpv"]
+[ext_resource type="PackedScene" uid="uid://bcmexcdkbs7b8" path="res://scenes/player/player.tscn" id="1_rvslj"]
+[ext_resource type="PackedScene" uid="uid://c037sw2bc6jw5" path="res://scenes/airport/airport.tscn" id="2_0bbpv"]
+[ext_resource type="PackedScene" uid="uid://bw73dqy1fyjkg" path="res://scenes/world/water.tscn" id="4_rarhs"]
+
+[node name="Node3D" type="Node3D" unique_id=63753314]
+
+[node name="World" parent="." unique_id=661118428 instance=ExtResource("1_0bbpv")]
+
+[node name="CharacterBody3D" parent="." unique_id=256198461 instance=ExtResource("1_rvslj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 253.2016, 6.6006927, -129.33704)
+
+[node name="Node3D" parent="." unique_id=1350502725 instance=ExtResource("2_0bbpv")]
+
+[node name="Node3D2" parent="." unique_id=1715944576 instance=ExtResource("4_rarhs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.3361816, 0)

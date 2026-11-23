@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://bw73dqy1fyjkg"]
+
+[ext_resource type="Shader" uid="uid://du5bjst6dq6ma" path="res://assets/shaders/environment/water.gdshader" id="1_mc3nr"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_2q6ah"]
+noise_type = 3
+frequency = 0.05
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_m3dhe"]
+noise = SubResource("FastNoiseLite_2q6ah")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_cs83y"]
+noise_type = 3
+frequency = 0.02
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_7ja3p"]
+noise = SubResource("FastNoiseLite_cs83y")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_sagkg"]
+noise_type = 3
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_2qab6"]
+noise = SubResource("FastNoiseLite_sagkg")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_evr7q"]
+render_priority = 0
+shader = ExtResource("1_mc3nr")
+shader_parameter/color = Color(0, 0.40784314, 0.4862745, 0.48235294)
+shader_parameter/deep_water = Color(0, 0.5254902, 0.62352943, 0.8745098)
+shader_parameter/roughness = 0.0
+shader_parameter/metallic = 0.0
+shader_parameter/speed = 0.0010000475475000492
+shader_parameter/beer_law_factor = 2.0
+shader_parameter/_distance = 50.0
+shader_parameter/edge_color = Color(1, 1, 1, 1)
+shader_parameter/edge_scale = 3.0
+shader_parameter/near = 0.1
+shader_parameter/far = 100.0
+shader_parameter/wave_direction = Vector2(2, 0)
+shader_parameter/wave_direction2 = Vector2(0, 1)
+shader_parameter/time_scale = 0.0249999994412
+shader_parameter/height_scale = 1.0
+shader_parameter/noise_scale = 10.0
+shader_parameter/noise1 = SubResource("NoiseTexture2D_m3dhe")
+shader_parameter/noise2 = SubResource("NoiseTexture2D_7ja3p")
+shader_parameter/wave = SubResource("NoiseTexture2D_2qab6")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_1mhxa"]
+material = SubResource("ShaderMaterial_evr7q")
+size = Vector2(10000, 10000)
+
+[node name="Node3D" type="Node3D" unique_id=1715944576]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1473677593]
+mesh = SubResource("PlaneMesh_1mhxa")

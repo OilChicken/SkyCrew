@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/models/airport/Airport_Core.glb" id="1_airport"]
+[ext_resource type="PackedScene" path="res://assets/models/islands/Island_01.glb" id="2_island"]
+
+[node name="Island01Airport" type="Node3D"]
+metadata/platform_blender_xy = Rect2(-472, -165, 944, 430)
+metadata/platform_godot_xz = Rect2(-472, -265, 944, 430)
+metadata/platform_elevation_m = 3.0
+metadata/sea_elevation_m = -12.0
+
+[node name="Island" parent="." instance=ExtResource("2_island")]
+
+[node name="Airport" parent="." instance=ExtResource("1_airport")]

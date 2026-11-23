@@ -1,9 +1,10 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://cqr4wtm2wkgo5"]
 
-[ext_resource type="Script" path="res://scripts/world/CloudField.cs" id="1_generator"]
-[ext_resource type="PackedScene" path="res://scenes/world/environment/flow_cloud.tscn" id="2_cloud"]
+[ext_resource type="Script" uid="uid://b4n3w8tqdkwvn" path="res://scripts/world/CloudField.cs" id="1_generator"]
+[ext_resource type="PackedScene" uid="uid://diu0kg5ql7ugq" path="res://scenes/world/environment/flow_cloud.tscn" id="2_cloud"]
 
-[node name="CloudField" type="Node3D"]
-position = Vector3(0, 0, -1200)
+[node name="CloudField" type="Node3D" unique_id=1054746336]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1200)
 script = ExtResource("1_generator")
 CloudScene = ExtResource("2_cloud")
+MaxClouds = 50

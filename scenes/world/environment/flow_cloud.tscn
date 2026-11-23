@@ -1,11 +1,11 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://diu0kg5ql7ugq"]
 
 [ext_resource type="ArrayMesh" path="res://assets/models/environment/clouds/flow_cloud_mesh.res" id="1_mesh"]
-[ext_resource type="Material" path="res://assets/materials/environment/flow_cloud.tres" id="2_material"]
+[ext_resource type="Material" uid="uid://bwmgjrfr3p1g8" path="res://assets/materials/environment/flow_cloud.tres" id="2_material"]
 
-[node name="FlowCloud" type="Node3D"]
+[node name="FlowCloud" type="Node3D" unique_id=884450298]
 
-[node name="CloudModel" type="MeshInstance3D" parent="."]
+[node name="CloudModel" type="MeshInstance3D" parent="." unique_id=141490691]
 transform = Transform3D(1000, 0, 0, 0, 1000, 0, 0, 0, 1000, 0, -4, 0)
 material_override = ExtResource("2_material")
 cast_shadow = 0
