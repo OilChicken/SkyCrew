@@ -1,7 +1,12 @@
 [gd_scene format=3]
 
+<<<<<<< Updated upstream
 [ext_resource type="ArrayMesh" path="res://assets/models/environment/clouds/flow_cloud_mesh.res" id="1_mesh"]
 [ext_resource type="Material" path="res://assets/materials/environment/flow_cloud.tres" id="2_material"]
+=======
+[ext_resource type="ArrayMesh" path="res://assets/models/environment/clouds/flow_cloud_lod.res" id="1_mesh"]
+[ext_resource type="Material" uid="uid://bwmgjrfr3p1g8" path="res://assets/materials/environment/flow_cloud.tres" id="2_material"]
+>>>>>>> Stashed changes
 
 [node name="FlowCloud" type="Node3D"]
 

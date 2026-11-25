@@ -1,12 +1,12 @@
 # SkyCrew
 
-SkyCrew 是由 **OilHook Studios** 开发的飞机题材派对游戏，采用柔和的卡通画风和单世界结构。当前主世界包含昼夜天空、基于 Flow Cloud 网格、三层噪声和场景光照联动的程序化云场，以及原生环境调试面板。
+SkyCrew 是由 **OilHook Studios** 开发的飞机题材派对游戏，采用柔和的卡通画风和单世界结构。当前主世界包含昼夜天空、基于 Flow Cloud 网格、三层噪声和场景光照联动的固定位置云场。游戏时间自动流逝，一天为现实时间 30 分钟。
 
 ## 打开项目
 
-1. 用 **Godot 4.7.2 .NET（C#）** 导入本目录的 `project.godot`。渲染器使用上游示例的 **Compatibility**，C# 目标框架为 .NET 8.0。本机 Godot 位于 `D:\Godot\GodotSharp\4.7.2`。
-2. 按 **F5** 进入世界。默认视口和独立游戏窗口均为 **1920 × 1080**。时间滑块调整运行时间，自动昼夜开关控制播放，F3 显示或隐藏面板。
-3. 在 `world.tscn` 的 3D 视口选择 `Environment/CloudField`，调节 Inspector 的 `Minimum Altitude`、`Cell Spacing`、`Cell Occupancy`、`Seed` 和风速等属性。编辑器会即时重建云场，游戏中按风速漂移并循环回收云的位置。最低高度默认 450 米，约束云体底部。
+1. 用 **Godot 4.7.2 .NET（C#）** 导入本目录的 `project.godot`。渲染器使用 **Forward+**，C# 目标框架为 .NET 8.0。本机 Godot 位于 `D:\Godot\GodotSharp\4.7.2`。
+2. 按 **F5** 进入世界。默认视口和独立游戏窗口均为 **1920 × 1080**。当前入口为 scenes/Main.tscn，World 提供环境，玩家相机提供游戏视角。
+3. 在 `world.tscn` 的 3D 视口选择 `Environment/CloudField`，调节 Inspector 的 `Minimum Altitude`、`Cell Spacing`、`Cell Occupancy`、`Seed` 等属性。位置由种子固定，Render Distance 控制完整显示距离，Fade Distance 控制其后的渐隐宽度，Preload Margin 控制提前加载范围。最低高度默认 450 米，约束云体底部。
 4. 选择 `Environment/SkyRig` 调整 `Preview Hour` 可预览天空时刻，游戏开场时刻由 `WorldClock/StartHour` 决定。视口菜单的「查看环境」应开启。
 5. 原版完整示例位于 `scenes/debug/flow_cloud_original.tscn`，可单独打开并按 F6 比对。世界云组件位于 `scenes/world/environment/flow_cloud.tscn`，模型、材质、纹理和着色器均按类型存入 `assets/`。
 

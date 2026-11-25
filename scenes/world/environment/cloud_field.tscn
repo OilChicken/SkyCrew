@@ -7,3 +7,7 @@
 position = Vector3(0, 0, -1200)
 script = ExtResource("1_generator")
 CloudScene = ExtResource("2_cloud")
+<<<<<<< Updated upstream
+=======
+MaxClouds = 768
+>>>>>>> Stashed changes

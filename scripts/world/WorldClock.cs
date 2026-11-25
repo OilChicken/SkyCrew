@@ -15,7 +15,7 @@ public partial class WorldClock : Node
     public bool StartRunning { get; set; } = true;
 
     [Export(PropertyHint.Range, "1,3600,1,or_greater,suffix:s")]
-    public double DayDurationSeconds { get; set; } = 240.0;
+    public double DayDurationSeconds { get; set; } = 1800.0;
 
     public double Hour { get; private set; }
     public bool Running { get; private set; }

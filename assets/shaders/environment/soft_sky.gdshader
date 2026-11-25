@@ -2,51 +2,60 @@ shader_type sky;
 
 #include "res://assets/shaders/environment/daylight_palette.gdshaderinc"
 
-uniform float sun_radius : hint_range(0.5, 4.0, 0.05) = 1.65;
-uniform float halo_strength : hint_range(0.0, 0.75, 0.01) = 0.34;
+uniform float sun_radius : hint_range(0.3, 2.5, 0.05) = 0.85;
+uniform float halo_strength : hint_range(0.0, 2.0, 0.05) = 0.7;
+uniform float sun_intensity : hint_range(1.0, 24.0, 0.5) = 10.0;
+uniform float star_intensity : hint_range(0.0, 4.0, 0.1) = 0.85;
 
-float star_field(vec3 direction) {
-	vec3 coordinates = direction * 160.0 + vec3(11.2, 5.5, 3.1);
-	vec3 cell = floor(coordinates);
-	vec3 center = 0.2 + 0.6 * fract(sin(vec3(
-		dot(cell, vec3(27.1, 113.3, 39.7)),
-		dot(cell, vec3(51.9, 29.8, 80.4)),
-		dot(cell, vec3(68.3, 61.2, 89.5))
-	)) * 437.58);
-	float brightness = fract(dot(center, vec3(131.7, 59.4, 73.6)));
-	float point = 1.0 - smoothstep(0.055, 0.155, length(fract(coordinates) - center));
-	return point * smoothstep(0.985, 1.0, brightness);
+vec3 hash_star(vec2 cell) {
+	return fract(sin(vec3(dot(cell, vec2(127.1, 311.7)),
+		dot(cell, vec2(269.5, 183.3)), dot(cell, vec2(419.2, 371.9)))) * 43758.5453);
+}
+
+vec3 stars(vec3 direction) {
+	vec2 uv = vec2(atan(direction.z, direction.x) / TAU + 0.5, asin(clamp(direction.y, -1.0, 1.0)) / PI + 0.5);
+	vec2 grid = uv * vec2(360.0, 180.0);
+	vec2 cell = floor(grid);
+	vec3 seed = hash_star(cell);
+	vec2 offset = fract(grid) - (0.18 + 0.64 * seed.xy);
+	// Compensate the equirectangular map's stretching toward the poles.
+	offset.x *= max(0.1, cos((uv.y - 0.5) * PI));
+	float radius = mix(0.012, 0.065, pow(seed.x, 5.0));
+	float aa = max(0.012, length(fwidth(grid)) * 0.32);
+	float point = 1.0 - smoothstep(radius, radius + aa, length(offset));
+	float selected = step(0.963, seed.z);
+	float twinkle = 0.85 + 0.15 * sin(TIME * (0.5 + seed.x) + seed.y * TAU);
+	vec3 tint = mix(vec3(0.60, 0.74, 1.0), vec3(1.0, 0.88, 0.68), seed.y);
+	return tint * point * selected * twinkle * (0.12 + 2.2 * pow(seed.x, 6.0));
 }
 
 void sky() {
-	if (AT_CUBEMAP_PASS) {
-		COLOR = vec3(0.18, 0.25, 0.31);
-	} else {
-		vec3 sun_direction = skycrew_sun_direction;
-		COLOR = sky_gradient(EYEDIR, sun_direction);
-
-		float separation = length(EYEDIR - sun_direction);
+	vec3 sun = normalize(skycrew_sun_direction);
+	COLOR = sky_gradient(EYEDIR, sun);
+	if (!AT_CUBEMAP_PASS) {
+		float separation = length(EYEDIR - sun);
 		float radius = 2.0 * sin(radians(sun_radius) * 0.5);
-		float sun_visibility = smoothstep(-0.16, 0.02, sun_direction.y);
-		float sun_warmth = 1.0 - smoothstep(0.0, 0.40, sun_direction.y);
-		vec3 halo_color = mix(vec3(1.0, 0.73, 0.38), vec3(1.0, 0.39, 0.15), sun_warmth);
-		float aureole = exp(-pow(separation * 8.0, 1.45));
-		float scatter = exp(-pow(separation * 2.8, 1.8));
-		COLOR += halo_color * halo_strength * (0.65 * aureole + 0.35 * scatter) * sun_visibility;
+		float horizon_clip = smoothstep(-0.006, 0.002, EYEDIR.y);
+		float visible = smoothstep(-0.045, 0.015, sun.y);
+		float warmth = 1.0 - smoothstep(0.0, 0.35, sun.y);
+		vec3 core = mix(vec3(1.0, 0.96, 0.80), vec3(1.0, 0.48, 0.12), warmth);
+		float disc = 1.0 - smoothstep(radius * 0.94, radius * 1.06, separation);
+		float corona = exp(-separation / max(radius, 0.001) * 1.4);
+		float aureole = exp(-pow(separation * 7.0, 1.5));
+		float scatter = exp(-pow(separation * 2.5, 1.8));
+		COLOR += core * halo_strength * (0.35 * aureole + 0.12 * scatter) * visible;
+		COLOR += core * (disc * sun_intensity * mix(1.0, 0.35, warmth) + corona * 1.8) * visible * horizon_clip;
 
-		float disc_mask = 1.0 - smoothstep(radius * 0.91, radius * 1.06, separation);
-		float limb = smoothstep(radius * 0.14, radius, separation);
-		vec3 disc_edge = mix(vec3(1.0, 0.81, 0.47), vec3(1.0, 0.47, 0.20), sun_warmth);
-		vec3 disc_core = mix(vec3(1.0, 0.975, 0.86), vec3(1.0, 0.86, 0.57), sun_warmth);
-		COLOR = mix(COLOR, mix(disc_core, disc_edge, limb * 0.74), disc_mask * sun_visibility);
-
-		float night = smoothstep(0.08, 0.32, -sun_direction.y);
+		float night = 1.0 - smoothstep(-0.25, -0.07, sun.y);
+		float above_horizon = smoothstep(0.015, 0.20, EYEDIR.y);
 		if (night > 0.0) {
-			float stars = star_field(EYEDIR) * smoothstep(0.01, 0.29, EYEDIR.y);
-			float moon_alignment = dot(EYEDIR, -sun_direction);
-			float moon = smoothstep(0.99945, 0.99955, moon_alignment);
-			COLOR += (vec3(0.70, 0.79, 1.0) * stars * 0.7
-				+ vec3(0.33, 0.47, 0.70) * (moon + 0.16 * pow(max(moon_alignment, 0.0), 85.0))) * night;
+			vec3 star_color = stars(EYEDIR);
+			float milky_band = exp(-abs(dot(EYEDIR, normalize(vec3(0.30, 0.82, -0.48)))) * 18.0);
+			COLOR += (star_color * star_intensity + vec3(0.006, 0.009, 0.017) * milky_band) * night * above_horizon;
+			float moon_distance = length(EYEDIR + sun);
+			float moon = 1.0 - smoothstep(0.014, 0.016, moon_distance);
+			float moon_halo = exp(-moon_distance * 14.0) * 0.045;
+			COLOR += vec3(0.34, 0.46, 0.68) * (moon + moon_halo) * night * horizon_clip;
 		}
 	}
 }

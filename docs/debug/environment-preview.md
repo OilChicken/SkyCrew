@@ -1,14 +1,9 @@
-# 环境调试与预览
+# 环境的编辑器预览
 
-在 `world.tscn` 里实例化了 `environment_debug_panel.tscn` 和 `environment_preview.tscn`。面板使用 Godot 默认主题的 `PanelContainer`、`Label`、`HSlider`、`CheckButton`、`OptionButton` 与容器。场景中的信号连接可在 Inspector 的节点面板中找到。
+运行中的 World 仅包含环境。时间由 WorldClock 自动推进，当前游戏天为现实 30 分钟。开发用 environment_debug_panel.tscn 和 environment_preview.tscn 保存在 scenes/debug，当前 Main 与 World 都未实例化它们。
 
-| 控件 | 行为 |
-| --- | --- |
-| F3 | 显示或隐藏调试面板，继续当前环境和镜头状态 |
-| 时间滑块 | 拖动或使用方向键，以一分钟为步长定位到 00:00–24:00。手动拖动会暂停自动昼夜 |
-| 自动昼夜 | 从当前时刻继续播放，或暂停在当前时刻 |
-| 预览镜头 | 在云海全景、云层上方、空中巡览和云底仰视之间切换 |
+在编辑器打开 scenes/Main.tscn 或 scenes/world/world.tscn。选择 World/Environment/SkyRig，调节 Preview Hour 检查天空、太阳与云的场景光照。选择 CloudField 可调节布局、高度和显示距离。编辑器会使用主 3D 视口的相机位置，预览当前位置附近的云。
 
-在面板场景的根节点上，Inspector 导出引用连接到时间滑块、标签和播放开关。`world.tscn` 还负责连接时钟、四台相机和航线动画。手动拖动通过 `drag_started` 暂停，通过 `value_changed` 定位。自动播放时面板用 `SetValueNoSignal` 回填滑块，避免更新控件时再次触发暂停。
+默认云体在 3 千米内完整显示，随后 1.2 千米渐隐，另有 600 米预加载距离。实例的入场淡入默认为 1.2 秒，首次进入和远距离跳转都经过渐显。
 
-穿云相机挂在 `PathFollow3D` 下。`cloud_flight.tres` 在 24 秒内将路程比例从 0 播到 1，随后回到起点。航线途经近处 `Near/Cloud10` 和中段 `Middle/Cloud11` 的中心。打开 `environment_preview.tscn` 编辑 `FlightPath` 的曲线点，或在 Animation 面板定位 `fly_through`。回到任一固定相机时，预览动画会停止。
+原版 Flow Cloud 可单独打开 scenes/debug/flow_cloud_original.tscn 按 F6 比对。

@@ -1,16 +1,9 @@
 # 世界与程序化云场
 
-唯一入口为 scenes/world/world.tscn。
+游戏入口为 scenes/Main.tscn，组装 World、玩家、机场与水面。World 的 Environment 分支包含 SkyRig 和 CloudField。游戏视角来自玩家的 Camera3D。
 
-World
-├── Environment
-│   ├── SkyRig（天空、太阳、WorldEnvironment、运行时钟）
-│   └── CloudField（程序化实例化云组件）
-├── Preview（四种预览相机与巡览路径）
-└── EnvironmentDebugPanel（Godot 原生调试控件）
+SkyRig 保存太阳、天空和 WorldEnvironment 节点，WorldClock 控制时间。CloudField 按固定种子预先计算云的位置、朝向和比例，再按相机距离实例化 scenes/world/environment/flow_cloud.tscn。完整原版示例保存在 scenes/debug/flow_cloud_original.tscn。
 
-云组件位于 scenes/world/environment/flow_cloud.tscn，保留上游 CloudModel 的原网格、材质和节点变换。世界只共享一套天空与相机系统。完整上游示例归入 scenes/debug/flow_cloud_original.tscn，供单独 F6 比对。
+CloudField 是 [Tool] 节点。生成实例不设置 Owner，场景只保存参数。编辑器按主 3D 视口相机位置加载附近云，运行时使用当前游戏相机。所有云的位置在本次布局中固定，相机移动只决定实例的加载与释放。
 
-CloudField 是可在场景中编辑的 [Tool] 节点。生成实例不设置 Owner，因此编辑器预览生成的节点不会写入场景文件。场景保存生成参数，运行时由相同种子重新生成。运行中的实例可在 Remote 场景树查看。
-
-修改生成参数后编辑器自动重建，也可点击「重新生成云」。改变 Seed 可得到另一组可复现的分布。编辑器保持云的位置静止便于观察，着色器表面动画照常执行。游戏内按 WindVelocity 移动，并在生成区域边缘回绕。
+修改布局参数后编辑器自动重建，也可点击「重新生成云」。同一种子与参数产生同一组位置，离开再返回时能恢复同一朵云。World 中的环境调试面板和预览相机已从运行树移除。

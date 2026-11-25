@@ -12,8 +12,13 @@ config_version=5
 
 config/name="SkyCrew"
 config/version="0.0.1"
+<<<<<<< Updated upstream
 run/main_scene="res://scenes/world/world.tscn"
 config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
+=======
+run/main_scene="res://scenes/Main.tscn"
+config/features=PackedStringArray("4.7", "C#", "Forward Plus")
+>>>>>>> Stashed changes
 config/icon="res://icon.svg"
 
 [display]

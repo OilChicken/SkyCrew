@@ -3,7 +3,7 @@
 // Original source: reference/UnlitClouds/Assets/__CLOUDS/Cloud_unlit_vertex_color.shader
 // Unity's distance tessellation stage has no direct Godot spatial-shader equivalent.
 shader_type spatial;
-render_mode unshaded, cull_back, depth_draw_opaque;
+render_mode unshaded, cull_back, depth_prepass_alpha;
 
 uniform sampler2D top_texture : filter_linear_mipmap, repeat_enable;
 
@@ -13,6 +13,16 @@ uniform bool use_world_lighting = false;
 global uniform vec3 skycrew_sun_direction;
 global uniform vec4 skycrew_cloud_light : source_color;
 global uniform vec4 skycrew_cloud_shadow : source_color;
+uniform bool use_distance_fade = false;
+instance uniform float cloud_fade_start = 3000.0;
+instance uniform float cloud_fade_end = 4200.0;
+instance uniform float cloud_spawn_visibility = 1.0;
+
+group_uniforms toon_lighting;
+uniform float toon_strength : hint_range(0.0, 1.0, 0.01) = 0.0;
+uniform float toon_band_softness : hint_range(0.01, 0.15, 0.005) = 0.045;
+uniform float toon_shadow_threshold : hint_range(0.1, 0.6, 0.01) = 0.40;
+uniform float toon_light_threshold : hint_range(0.5, 0.9, 0.01) = 0.72;
 
 group_uniforms noise_a;
 uniform vec3 noise_scale_a = vec3(1.0);
@@ -153,6 +163,15 @@ void vertex() {
 
 
 void fragment() {
+	float cloud_visibility = 1.0;
+	if (use_distance_fade) {
+		float distance_to_cloud = distance(CAMERA_POSITION_WORLD, NODE_POSITION_WORLD);
+		cloud_visibility = (1.0 - smoothstep(cloud_fade_start, cloud_fade_end, distance_to_cloud))
+			* cloud_spawn_visibility;
+		if (cloud_visibility <= 0.001) {
+			discard;
+		}
+	}
 	vec3 world_normal = normalize(cloud_world_normal);
 	// Separate the original surface animation from A/B/C vertex deformation.
 	vec3 shape_position = use_reference_space ? cloud_reference_position : cloud_world_position;
@@ -173,6 +192,11 @@ void fragment() {
 	vec3 light_direction = use_world_lighting
 		? normalize(vec3(skycrew_sun_direction.x, max(skycrew_sun_direction.y, 0.12), skycrew_sun_direction.z))
 		: normalize(fake_light_direction);
+	vec3 camera_position = INV_VIEW_MATRIX[3].xyz;
+	vec3 view_direction = normalize(camera_position - cloud_world_position);
+	// Keep the established backlit response and apply broad bands toward front/side light.
+	float backlight = smoothstep(0.05, 0.65, -dot(view_direction, light_direction));
+	float toon_mix = use_world_lighting ? toon_strength * (1.0 - backlight) : 0.0;
 	if (use_procedural_color) {
 		// The source FBX stores its broad lighting in vertex colors. Editable
 		// spheres do not, so rebuild the same low-frequency light/shadow role.
@@ -183,16 +207,23 @@ void fragment() {
 		float normal_light = smoothstep(-0.55, 0.72, dot(world_normal, light_direction));
 		float light_amount = clamp(height_light * 0.42 + normal_light * 0.58, 0.0, 1.0);
 		vertex_color = mix(shadow_color, light_color, light_amount);
+		float shadow_band = smoothstep(toon_shadow_threshold - toon_band_softness,
+			toon_shadow_threshold + toon_band_softness, light_amount);
+		float light_band = smoothstep(toon_light_threshold - toon_band_softness,
+			toon_light_threshold + toon_band_softness, light_amount);
+		float band_amount = 0.12 + 0.42 * shadow_band + 0.46 * light_band;
+		vec3 band_color = mix(shadow_color, min(light_color, vec3(1.0)), band_amount);
+		vertex_color = mix(vertex_color, band_color, toon_mix);
 	}
 	vec3 texture_tint = use_world_lighting ? mix(shadow_color, light_color, 0.13) : texture_color;
+	texture_mask *= 1.0 - toon_mix * 0.85;
 	vec3 base_color = mix(vertex_color, texture_tint, texture_mask);
-	vec3 camera_position = INV_VIEW_MATRIX[3].xyz;
-	vec3 view_direction = normalize(camera_position - cloud_world_position);
 	float fresnel = fresnel_bsp.x + fresnel_bsp.y * pow(1.0 - clamp(dot(world_normal, view_direction), 0.0, 1.0), fresnel_bsp.z);
 	vec3 rim = rim_color;
 	if (use_world_lighting) {
 		rim *= light_color * (0.45 + 0.55 * max(dot(world_normal, light_direction), 0.0));
 	}
 	ALBEDO = clamp(base_color + fresnel * rim, vec3(0.0), vec3(1.0));
+	ALPHA = cloud_visibility;
 	ROUGHNESS = 1.0;
 }
